@@ -1,0 +1,59 @@
+#version: "3.9"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: ai_video_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ai_video_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: ai_video_redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  api:
+    build:
+      context: ./backend
+    container_name: ai_video_api
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./backend:/app
+      - ./storage:/app/storage
+    ports:
+      - "8081:8000"  #TODO bese zafatena port 8000 smeniv na 8081
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/ai_video_db
+    depends_on:
+      - redis
+      - db
+
+  celery_worker:
+    build:
+      context: ./backend
+    container_name: ai_video_worker
+    command: celery -A app.core.celery_app.celery_app worker --loglevel=info
+    volumes:
+      - ./backend:/app
+      - ./storage:/app/storage
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/ai_video_db
+    depends_on:
+      - redis
+      - db
+
+volumes:
+  postgres_data:
