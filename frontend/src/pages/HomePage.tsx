@@ -5,6 +5,8 @@ export const HomePage = () => {
   const {
     file,
     setFile,
+    targetLanguage,
+    setTargetLanguage,
     taskId,
     status,
     jobResult,
@@ -17,13 +19,10 @@ export const HomePage = () => {
     <main className="page">
       <section className="card">
         <h1>AI Video Captioning Platform</h1>
-        <p className="subtitle">
-          Прикачи видео, почекај обработка и преземи транскрипт, титлови и готово видео.
-        </p>
 
         <div className="upload-box">
           <label htmlFor="videoFile" className="file-label">
-            Избери видео
+            1. Избери видео:
           </label>
           <input
             id="videoFile"
@@ -38,13 +37,29 @@ export const HomePage = () => {
             </p>
           )}
 
+          <div style={{ marginTop: '16px' }}>
+            <label htmlFor="langSelect" className="file-label">
+              2. Избери јазик на титловите:
+            </label>
+            <select
+              id="langSelect"
+              value={targetLanguage}
+              onChange={(e) => setTargetLanguage(e.target.value)}
+              style={{ padding: '8px 12px', borderRadius: '8px', width: '100%', marginTop: '4px' }}
+            >
+              <option value="original">Оригинален јазик (јазикот на видеото)</option>
+              <option value="mk">Превод на Македонски (MK)</option>
+              <option value="en">Превод на Англиски (EN)</option>
+            </select>
+          </div>
+
           <div className="actions">
             <button
               className="primary-btn"
               onClick={startProcessing}
               disabled={!file || status === 'UPLOADING' || status === 'PROCESSING'}
             >
-              Прикачи и процесирај
+              Процесирај
             </button>
 
             <button className="secondary-btn" onClick={resetState}>
@@ -61,50 +76,50 @@ export const HomePage = () => {
 
           {taskId && (
             <p>
-              Task ID: <code>{taskId}</code>
+              Task ID: <strong>{taskId}</strong>
             </p>
           )}
 
           {status === 'UPLOADING' && <p>Видеото се прикачува...</p>}
-          {status === 'PROCESSING' && <p>Видеото се обработува. Ова може да потрае.</p>}
+          {status === 'PROCESSING' && <p>На видеото се прави превод и транскрипција. Ве молиме почекајте...</p>}
           {status === 'ERROR' && <p className="error-text">{errorMessage}</p>}
-          {status === 'SUCCESS' && <p className="success-text">Процесирањето е успешно завршено.</p>}
         </div>
 
-        {jobResult && (
+        {status === 'SUCCESS' && jobResult && (
           <div className="results-box">
             <h2>Резултати</h2>
             <p>{jobResult.message}</p>
 
             <div className="download-links">
-              <a
-                href={api.getOutputUrl(jobResult.video_file)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Преземи MP4 видео
-              </a>
+              {jobResult.text_file && (
+                <a
+                  href={api.getOutputUrl(jobResult.text_file)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Преземи TXT
+                </a>
+              )}
 
-              <a
-                href={api.getOutputUrl(jobResult.srt_file)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Преземи SRT титлови
-              </a>
+              {jobResult.srt_file && (
+                <a
+                  href={api.getOutputUrl(jobResult.srt_file)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Преземи SRT
+                </a>
+              )}
 
-              <a
-                href={api.getOutputUrl(jobResult.text_file)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Преземи TXT транскрипт
-              </a>
-            </div>
-
-            <div className="preview-box">
-              <h3>Преглед на готово видео</h3>
-              <video controls width="100%" src={api.getOutputUrl(jobResult.video_file)} />
+              {jobResult.video_file && (
+                <a
+                  href={api.getOutputUrl(jobResult.video_file)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Преземи видео со титлови
+                </a>
+              )}
             </div>
           </div>
         )}
