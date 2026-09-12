@@ -1,0 +1,15 @@
+.git
+.github
+.devcontainer
+__pycache__
+*.pyc
+.venv
+node_modules
+.env
+uploads
+outputs
+models
+*.mp4
+*.mkv
+*.wav
+.cache

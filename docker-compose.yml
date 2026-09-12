@@ -24,6 +24,7 @@ services:
   api:
     build:
       context: ./backend
+    image: ai-video-caption-backend:latest
     container_name: ai_video_api
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
@@ -40,8 +41,7 @@ services:
       - db
 
   celery_worker:
-    build:
-      context: ./backend
+    image: ai-video-caption-backend:latest
     container_name: ai_video_worker
     command: celery -A app.core.celery_app.celery_app worker --loglevel=info
     volumes:

@@ -1,6 +1,6 @@
 import type { JobStatusResponse, UploadResponse } from '../types'
 
-const API_BASE_URL = 'http://127.0.0.1:8081'
+const API_BASE_URL = ''
 
 export const api = {
   uploadVideo: async (file: File, targetLanguage: string = 'original'): Promise<UploadResponse> => {
