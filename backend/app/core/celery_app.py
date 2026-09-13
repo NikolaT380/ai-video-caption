@@ -14,4 +14,13 @@ celery_app = Celery(
 celery_app.conf.update(
     task_track_started=True,
     result_expires=3600,
+    broker_connection_retry_on_startup=True,
+    broker_transport_options={
+        "socket_timeout": 5.0,
+        "socket_connect_timeout": 5.0,
+    },
+    redis_backend_transport_options={
+        "socket_timeout": 5.0,
+        "socket_connect_timeout": 5.0,
+    },
 )
